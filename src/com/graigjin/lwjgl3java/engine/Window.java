@@ -6,9 +6,7 @@ import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
-import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
@@ -17,9 +15,7 @@ public class Window {
 
     private int width;
     private int height;
-
-    private long window;
-
+    private long windowHandle;
     private boolean resized;
     private boolean vSync;
 
@@ -32,53 +28,68 @@ public class Window {
     }
 
     public void init() {
-
+        // Setup an error callback. The default implementation
+        // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
 
+        // Initialize GLFW. Most GLFW functions will not work before doing this.
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+        glfwDefaultWindowHints(); // optional, the current window hints are already the default
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-        window = glfwCreateWindow(width, height, title, NULL, NULL);
-
-        if (window == NULL) {
+        // Create the window
+        windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
+        if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
+        // Setup resize callback
+        glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> {
             this.width = width;
             this.height = height;
             this.setResized(true);
         });
 
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
+        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                glfwSetWindowShouldClose(window, true);
+                glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
             }
         });
 
+        // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        // Center our window
+        glfwSetWindowPos(
+                windowHandle,
+                (vidmode.width() - width) / 2,
+                (vidmode.height() - height) / 2
+        );
 
-        glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
-        glfwMakeContextCurrent(window);
+        // Make the OpenGL context current
+        glfwMakeContextCurrent(windowHandle);
 
         if (isvSync()) {
+            // Enable v-sync
             glfwSwapInterval(1);
         }
 
-        glfwShowWindow(window);
+        // Make the window visible
+        glfwShowWindow(windowHandle);
 
         GL.createCapabilities();
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glEnable(GL_DEPTH_TEST);
     }
 
     public void setClearColor(float r, float g, float b, float alpha) {
@@ -86,11 +97,11 @@ public class Window {
     }
 
     public boolean isKeyPressed(int keyCode) {
-        return glfwGetKey(window, keyCode) == GLFW_PRESS;
+        return glfwGetKey(windowHandle, keyCode) == GLFW_PRESS;
     }
 
     public boolean windowShouldClose() {
-        return glfwWindowShouldClose(window);
+        return glfwWindowShouldClose(windowHandle);
     }
 
     public String getTitle() {
@@ -122,7 +133,7 @@ public class Window {
     }
 
     public void update() {
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(windowHandle);
         glfwPollEvents();
     }
 }

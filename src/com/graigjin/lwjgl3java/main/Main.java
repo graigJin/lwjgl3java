@@ -1,21 +1,19 @@
 package com.graigjin.lwjgl3java.main;
 
-import com.graigjin.lwjgl3java.engine.Engine;
-import com.graigjin.lwjgl3java.engine.ILogic;
+import com.graigjin.lwjgl3java.engine.GameEngine;
+import com.graigjin.lwjgl3java.engine.IGameLogic;
 
 public class Main {
 
     public static void main(String[] args) {
-
         try {
             boolean vSync = true;
-            ILogic gameLogic = new Game();
-            Engine gameEngine = new Engine("GAME v.0.1", 1200, 800, vSync, gameLogic);
-            gameEngine.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+            IGameLogic gameLogic = new Game();
+            GameEngine gameEng = new GameEngine("GAME", 600, 480, vSync, gameLogic);
+            gameEng.start();
+        } catch (Exception excp) {
+            excp.printStackTrace();
             System.exit(-1);
         }
     }
-
 }

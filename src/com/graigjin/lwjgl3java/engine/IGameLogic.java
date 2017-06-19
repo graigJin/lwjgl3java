@@ -1,6 +1,6 @@
 package com.graigjin.lwjgl3java.engine;
 
-public interface ILogic {
+public interface IGameLogic {
 
     void init(Window window) throws Exception;
 
