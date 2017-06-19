@@ -2,7 +2,7 @@ package com.graigjin.lwjgl3java.engine;
 
 public interface ILogic {
 
-    void init() throws Exception;
+    void init(Window window) throws Exception;
 
     void input(Window window);
 
