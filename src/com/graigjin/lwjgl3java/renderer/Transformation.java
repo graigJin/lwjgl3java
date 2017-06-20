@@ -7,7 +7,9 @@ import org.joml.Vector3f;
 public class Transformation {
 
     private final Matrix4f projectionMatrix;
+
     private final Matrix4f modelViewMatrix;
+
     private final Matrix4f viewMatrix;
 
     public Transformation() {
