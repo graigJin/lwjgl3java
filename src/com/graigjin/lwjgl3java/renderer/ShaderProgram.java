@@ -1,6 +1,7 @@
 package com.graigjin.lwjgl3java.renderer;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;
@@ -14,6 +15,7 @@ public class ShaderProgram {
     private final int programId;
 
     private int vertexShaderId;
+
     private int fragmentShaderId;
 
     private final Map<String, Integer> uniforms;
@@ -45,6 +47,10 @@ public class ShaderProgram {
 
     public void setUniform(String uniformName, int value) {
         glUniform1i(uniforms.get(uniformName), value);
+    }
+
+    public void setUniform(String uniformName, Vector3f value) {
+        glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
     }
 
     public void createVertexShader(String shaderCode) throws Exception {
@@ -90,7 +96,6 @@ public class ShaderProgram {
         if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
             System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
         }
-
     }
 
     public void bind() {
@@ -107,5 +112,4 @@ public class ShaderProgram {
             glDeleteProgram(programId);
         }
     }
-
 }
