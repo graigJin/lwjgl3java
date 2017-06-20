@@ -14,9 +14,7 @@ public class Renderer {
   private static final float FOV = (float) Math.toRadians(60.0f);
   private static final float Z_NEAR = 0.01f;
   private static final float Z_FAR = 1000.f;
-
   private final Transformation transformation;
-
   private ShaderProgram shaderProgram;
 
   public Renderer() {
@@ -30,9 +28,9 @@ public class Renderer {
     shaderProgram.createFragmentShader(Utils.loadResource("/shaders/fragment.glsl"));
     shaderProgram.link();
 
-    // Create uniforms for world and projection matrices and texture
+    // Create uniforms for modelView and projection matrices and texture
     shaderProgram.createUniform("projectionMatrix");
-    shaderProgram.createUniform("worldMatrix");
+    shaderProgram.createUniform("modelViewMatrix");
     shaderProgram.createUniform("texture_sampler");
   }
 
@@ -40,7 +38,7 @@ public class Renderer {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
-  public void render(Window window, GameItem[] gameItems) {
+  public void render(Window window, Camera camera, GameItem[] gameItems) {
     clear();
 
     if ( window.isResized() ) {
@@ -54,15 +52,15 @@ public class Renderer {
     Matrix4f projectionMatrix = transformation.getProjectionMatrix(FOV, window.getWidth(), window.getHeight(), Z_NEAR, Z_FAR);
     shaderProgram.setUniform("projectionMatrix", projectionMatrix);
 
+    // Update view Matrix
+    Matrix4f viewMatrix = transformation.getViewMatrix(camera);
+
     shaderProgram.setUniform("texture_sampler", 0);
     // Render each gameItem
     for(GameItem gameItem : gameItems) {
-      // Set world matrix for this item
-      Matrix4f worldMatrix = transformation.getWorldMatrix(
-              gameItem.getPosition(),
-              gameItem.getRotation(),
-              gameItem.getScale());
-      shaderProgram.setUniform("worldMatrix", worldMatrix);
+      // Set model view matrix for this item
+      Matrix4f modelViewMatrix = transformation.getModelViewMatrix(gameItem, viewMatrix);
+      shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
       // Render the mes for this game item
       gameItem.getMesh().render();
     }

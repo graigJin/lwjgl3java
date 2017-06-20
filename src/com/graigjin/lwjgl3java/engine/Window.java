@@ -14,9 +14,13 @@ public class Window {
     private final String title;
 
     private int width;
+
     private int height;
+
     private long windowHandle;
+
     private boolean resized;
+
     private boolean vSync;
 
     public Window(String title, int width, int height, boolean vSync) {
@@ -90,6 +94,10 @@ public class Window {
         // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
+    }
+
+    public long getWindowHandle() {
+        return windowHandle;
     }
 
     public void setClearColor(float r, float g, float b, float alpha) {
